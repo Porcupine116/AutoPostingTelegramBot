@@ -64,7 +64,12 @@ class AIService:
                         headers=self._headers(),
                         json=payload,
                     )
-                response.raise_for_status()
+                if response.status_code != 200:
+                    logger.error(
+                        "OpenRouter error %s: %s",
+                        response.status_code,
+                        response.text)
+                    response.raise_for_status()
                 data = response.json()
                 content = (
                     data.get("choices", [{}])[0]
