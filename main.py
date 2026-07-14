@@ -50,7 +50,7 @@ async def main() -> None:
     history_service = HistoryService(settings.database_path)
     scheduled_posts = ScheduledPostService(settings.database_path)
     autopost_manager = AutoPostManager(
-        AutoPostContext(
+        AutopostContext(
             bot=bot,
             ai_service=AIService(),
             prompt_service=PromptService(),
