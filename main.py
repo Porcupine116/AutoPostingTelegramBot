@@ -25,7 +25,7 @@ from services.history_service import HistoryService
 from services.prompt_service import PromptService
 from services.scheduled_posts_service import ScheduledPostService
 from utils.logger import setup_logging
-
+from aiogram.client.session.aiohttp import AiohttpSession
 
 async def main() -> None:
     settings = get_settings()
@@ -33,7 +33,8 @@ async def main() -> None:
     logger = logging.getLogger(__name__)
     logger.info("Starting bot")
 
-    bot = Bot(token=settings.bot_token)
+    session = AiohttpSession(proxy="http://user385924:x0wdeh@84.32.156.9:3166")
+    bot = Bot(token=settings.bot_token, session=session)
     dp = Dispatcher()
 
     dp.include_router(start_router)
