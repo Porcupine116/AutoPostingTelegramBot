@@ -20,7 +20,7 @@ from bot.handlers import (
 from bot.handlers.autopost import set_autopost_manager
 from config.settings import get_settings
 from services.ai_service import AIService
-from services.autoposting import AutoPostContext, AutoPostManager
+from services.autoposting import AutopostContext, AutoPostManager
 from services.history_service import HistoryService
 from services.prompt_service import PromptService
 from services.scheduled_posts_service import ScheduledPostService
