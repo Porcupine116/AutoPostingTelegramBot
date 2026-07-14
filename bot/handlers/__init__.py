@@ -1,0 +1,10 @@
+from .autopost import router as autopost_router
+from .cta import router as cta_router
+from .generate import router as generate_router
+from .menu import router as menu_router
+from .reels import router as reels_router
+from .rewrite import router as rewrite_router
+from .script import router as script_router
+from .settings import router as settings_router
+from .start import router as start_router
+from .titles import router as titles_router
