@@ -8,6 +8,11 @@ from zoneinfo import ZoneInfo
 
 from config.settings import get_settings
 
+def _parse_dt(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed
 
 @dataclass(slots=True)
 class ScheduledPost:
@@ -125,12 +130,17 @@ class ScheduledPostService:
             rows = conn.execute(
                 """
                 SELECT * FROM scheduled_posts
-                WHERE status = 'planned' AND draft_at <= ?
-                ORDER BY draft_at ASC
-                """,
-                (now.isoformat(),),
+                WHERE status = 'planned'
+                """
             ).fetchall()
-            return [self._row_to_post(row) for row in rows]
+
+        posts = []
+        for row in rows:
+            draft_at = _parse_dt(row["draft_at"])
+            if draft_at <= now:
+                posts.append(self._row_to_post(row))
+
+        return sorted(posts, key=lambda post: _parse_dt(post.draft_at))
 
     def list_due_for_publication(self, now: datetime | None = None) -> list[ScheduledPost]:
         now = now or self._now()
@@ -138,12 +148,17 @@ class ScheduledPostService:
             rows = conn.execute(
                 """
                 SELECT * FROM scheduled_posts
-                WHERE publish_at <= ? AND status IN ('approved', 'auto_ready')
-                ORDER BY publish_at ASC
-                """,
-                (now.isoformat(),),
+                WHERE status IN ('approved', 'auto_ready')
+                """
             ).fetchall()
-            return [self._row_to_post(row) for row in rows]
+
+        posts = []
+        for row in rows:
+            publish_at = _parse_dt(row["publish_at"])
+            if publish_at <= now:
+                posts.append(self._row_to_post(row))
+
+        return sorted(posts, key=lambda post: _parse_dt(post.publish_at))
 
     def get(self, post_id: int) -> ScheduledPost | None:
         with self._connect() as conn:
