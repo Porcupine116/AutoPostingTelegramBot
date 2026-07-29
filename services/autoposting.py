@@ -59,7 +59,15 @@ class AutoPostManager:
             await asyncio.sleep(max(5, self.settings.scheduler_poll_seconds))
 
     async def sync_daily_plan(self) -> None:
-        if not self.settings.admin_chat_id or not self.settings.channel_id:
+        if not self.settings.channel_id:
+            logger.warning("CHANNEL_ID is not configured")
+            return
+
+        mode = (self.settings.autopost_mode or "approve").lower()
+
+        # В approve-режиме нужен админ-чат, иначе черновик некому показывать и нечего одобрять.
+        if mode != "auto" and not self.settings.admin_chat_id:
+            logger.warning("AUTOPOST_MODE=approve, but ADMIN_CHAT_ID is not configured")
             return
 
         slots = build_daily_slots()
@@ -73,7 +81,7 @@ class AutoPostManager:
                 format_name=self.settings.content_format,
                 length=self.settings.content_length,
                 variants=self.settings.content_variants,
-                mode=self.settings.autopost_mode,
+                mode=mode,
             )
 
     async def process_due_drafts(self) -> None:
